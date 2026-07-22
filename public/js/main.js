@@ -68,8 +68,7 @@ function initNavbar() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('pa_user');
-      // Redirect to login page
-      window.location.href = '/login';
+      window.location.href = '/logout';
     });
   }
 }
@@ -110,12 +109,6 @@ function initLoginForm() {
 
     if (!isValid) {
       e.preventDefault(); // Stop submission if invalid
-    } else {
-      // For local prototype demonstration, store user and mock redirect
-      localStorage.setItem('pa_user', JSON.stringify({ email: emailValue }));
-      // If we don't have a real backend POST endpoint, redirect in JS
-      e.preventDefault();
-      window.location.href = '/dashboard';
     }
   });
 }
@@ -172,11 +165,6 @@ function initSignupForm() {
 
     if (!isValid) {
       e.preventDefault();
-    } else {
-      // Store user mock registration
-      localStorage.setItem('pa_user', JSON.stringify({ email: emailInput.value.trim() }));
-      e.preventDefault();
-      window.location.href = '/login';
     }
   });
 
@@ -258,9 +246,32 @@ function initDashboardForm() {
       return;
     }
 
-    // Trigger Loading spinner & Status transition message sequence
-    triggerLoader(loaderOverlay, loaderStatus, urlValue, checkedParams);
+    // Trigger loading animation, then let the Express backend run the analysis.
+    overlaySubmit(loaderOverlay, loaderStatus, form);
   });
+}
+
+function overlaySubmit(overlay, statusText, form) {
+  overlay.classList.add('active');
+
+  const messages = [
+    { text: "Connecting to GitHub...", time: 0 },
+    { text: "Fetching repository metadata...", time: 500 },
+    { text: "Evaluating directory tree & codebase...", time: 1000 },
+    { text: "Calculating metrics for parameters...", time: 1500 },
+    { text: "Compiling repository score card...", time: 2000 },
+    { text: "Finalizing evaluation report...", time: 2400 }
+  ];
+
+  messages.forEach(msg => {
+    setTimeout(() => {
+      statusText.textContent = msg.text;
+    }, msg.time);
+  });
+
+  setTimeout(() => {
+    form.submit();
+  }, 2500);
 }
 
 // Function to animate status updates in loading overlay
@@ -496,56 +507,16 @@ function getScoreState(score) {
 function initHistoryPage() {
   if (!window.location.pathname.includes('/history')) return;
 
-  const historyList = JSON.parse(localStorage.getItem('pa_history') || '[]');
-  const container = document.getElementById('history-container');
-  const emptyState = document.getElementById('history-empty-state');
+  const renderedCards = document.querySelectorAll('#history-container .history-card');
   const countBadge = document.getElementById('history-count-badge');
 
-  if (!container) return;
-
-  // If localStorage history exists, render it dynamically
-  if (historyList.length > 0) {
-    emptyState.style.display = 'none';
-    container.innerHTML = ''; // Clear default mock or empty templates
-    
-    // Show and update badge count
-    countBadge.textContent = `${historyList.length} Evaluation${historyList.length > 1 ? 's' : ''}`;
+  if (renderedCards.length > 0) {
+    countBadge.textContent = `${renderedCards.length} Evaluation${renderedCards.length > 1 ? 's' : ''}`;
     countBadge.style.display = 'inline-block';
-
-    historyList.forEach(item => {
-      const state = getScoreState(item.overallScore);
-      const card = document.createElement('div');
-      card.className = 'history-card';
-      card.innerHTML = `
-        <div class="history-card-left">
-          <div class="history-icon-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-            </svg>
-          </div>
-          <div class="history-card-details">
-            <h2>${item.repoName}</h2>
-            <div class="history-date">${item.date}</div>
-          </div>
-        </div>
-        <div class="history-card-right">
-          <div class="history-score-display">
-            <div class="history-score-number state-${state}">${item.overallScore.toFixed(1)}</div>
-            <div class="history-score-lbl">Score</div>
-          </div>
-          <a href="/result?url=${encodeURIComponent(item.repoUrl)}&id=${item.id}" class="btn btn-secondary btn-sm">
-            View Details
-          </a>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  } else {
-    // If localStorage history is empty, ensure emptyState is displayed
-    emptyState.style.display = 'flex';
-    container.innerHTML = '';
-    countBadge.style.display = 'none';
+    return;
   }
+
+  countBadge.style.display = 'none';
 }
 
 /* ==========================================
