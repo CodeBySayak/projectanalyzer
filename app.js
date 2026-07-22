@@ -20,11 +20,11 @@ app.use(express.json());
 
 // Sessions
 if (!sessionSecret) {
-    console.warn("SESSION_SECRET is not configured. Set it in .env before using authentication.");
+    throw new Error("SESSION_SECRET is required. Set it in .env before starting the server.");
 }
 
 app.use(session({
-    secret: sessionSecret || "missing-session-secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
