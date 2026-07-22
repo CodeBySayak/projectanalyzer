@@ -3,18 +3,42 @@ const router = express.Router();
 const githubService = require("../services/githubService");
 const scoreService = require("../services/scoreService");
 const agentService = require("../services/agentService");
+const requireAuth = require("../middleware/auth");
+const Analysis = require("../models/Analysis");
 
 // Renders the dashboard page
-router.get("/dashboard", (req, res) => {
+router.get("/dashboard", requireAuth, (req, res) => {
     res.render("dashboard", { activePage: "dashboard" });
 });
 
 // Handles the repository analysis request and renders results or errors
-router.get("/result", async (req, res) => {
+router.get("/result", requireAuth, async (req, res) => {
     const url = req.query.url;
     let selectedParams = req.query.params;
 
     try {
+        if (req.query.id) {
+            const savedAnalysis = await Analysis.findOne({
+                _id: req.query.id,
+                userId: req.session.userId
+            }).lean();
+
+            if (!savedAnalysis) {
+                return res.render("error", { errorType: "not_found" });
+            }
+
+            return res.render("result", {
+                repoName: savedAnalysis.repositoryName,
+                repoOwner: savedAnalysis.owner,
+                repoAvatar: "",
+                overallScore: savedAnalysis.overallScore,
+                parameters: savedAnalysis.individualScores,
+                selectedParams: savedAnalysis.selectedParameters,
+                scrapeData: null,
+                agentReview: null
+            });
+        }
+
         // 1. Validate empty repository URL
         if (!url || !url.trim()) {
             return res.render("error", { errorType: "invalid_url" });
@@ -64,19 +88,17 @@ router.get("/result", async (req, res) => {
             console.warn("Agentic AI review skipped:", agentErr.message);
         }
 
-        // 9. Integration hook: Save history entry if MongoDB Model and User Session exist
+        // 9. Save history entry for the logged-in user without blocking result rendering.
         try {
-            const Analysis = require("../models/Analysis");
-            if (Analysis && typeof Analysis.create === "function" && req.session && req.session.user) {
+            if (Analysis && typeof Analysis.create === "function" && req.session && req.session.userId) {
                 await Analysis.create({
-                    userId: req.session.user._id,
-                    repoName: repoData.name,
-                    repoOwner: repoData.owner,
-                    repoUrl: url,
-                    score: overallScore,
-                    parameters: allParameters,
-                    selectedParams: selectedParams,
-                    date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                    userId: req.session.userId,
+                    repositoryUrl: url,
+                    repositoryName: repoData.name,
+                    owner,
+                    individualScores: allParameters,
+                    selectedParameters: selectedParams,
+                    overallScore
                 });
             }
         } catch (dbErr) {
