@@ -26,6 +26,7 @@
   // If it's not provided, we show all parameters.
   const selectedParams = locals.selectedParams || allParameters.map(p => p.name);
   const activeParameters = allParameters.filter(p => selectedParams.includes(p.name));
+  const agentReview = locals.agentReview || null;
   
   // Helper to determine the score state class
   function getScoreClass(score) {
@@ -141,6 +142,44 @@
         <% }); %>
       </div>
     </div>
+
+    <% if (agentReview) { %>
+      <div class="card" style="margin-bottom: 2rem; text-align: left;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Agentic AI Repository Review</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;"><%= agentReview.summary %></p>
+
+        <div class="cards-grid" style="margin-bottom: 1.25rem;">
+          <div class="score-card">
+            <div class="score-card-title" style="margin-bottom: 0.5rem;">Strengths</div>
+            <ul style="color: var(--text-secondary); padding-left: 1.2rem; margin: 0;">
+              <% (agentReview.strengths || []).forEach(item => { %>
+                <li><%= item %></li>
+              <% }); %>
+            </ul>
+          </div>
+          <div class="score-card">
+            <div class="score-card-title" style="margin-bottom: 0.5rem;">Weak Areas</div>
+            <ul style="color: var(--text-secondary); padding-left: 1.2rem; margin: 0;">
+              <% (agentReview.weaknesses || []).forEach(item => { %>
+                <li><%= item %></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+
+        <div class="result-params-title">Prioritized Improvements</div>
+        <div style="display: grid; gap: 0.85rem;">
+          <% (agentReview.recommendations || []).forEach(item => { %>
+            <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; margin-bottom: 0.35rem;"><%= item.priority || "Medium" %> Priority: <%= item.issue %></div>
+              <div style="color: var(--text-secondary);"><%= item.recommendation %></div>
+            </div>
+          <% }); %>
+        </div>
+
+        <p style="color: var(--text-secondary); margin-top: 1rem; margin-bottom: 0;"><strong>Verdict:</strong> <%= agentReview.finalVerdict %></p>
+      </div>
+    <% } %>
 
     <!-- Final Overall Score & CTA -->
     <div class="card" style="margin-bottom: 3rem; text-align: center; background-color: var(--bg-primary); border-style: dashed;">

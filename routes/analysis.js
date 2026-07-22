@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const githubService = require("../services/githubService");
 const scoreService = require("../services/scoreService");
+const agentService = require("../services/agentService");
 
 // Renders the dashboard page
 router.get("/dashboard", (req, res) => {
@@ -53,7 +54,17 @@ router.get("/result", async (req, res) => {
         // 7. Calculate overall weighted/averaged score for ONLY selected parameters
         const overallScore = scoreService.calculateOverallScore(allParameters, selectedParams);
 
-        // 8. Integration hook: Save history entry if MongoDB Model and User Session exist
+        // 8. Run the staged Agentic AI review. This is non-critical and must never block scoring.
+        let agentReview = null;
+        try {
+            if (agentService && typeof agentService.reviewRepository === "function") {
+                agentReview = await agentService.reviewRepository(repoData, allParameters, scrapeData);
+            }
+        } catch (agentErr) {
+            console.warn("Agentic AI review skipped:", agentErr.message);
+        }
+
+        // 9. Integration hook: Save history entry if MongoDB Model and User Session exist
         try {
             const Analysis = require("../models/Analysis");
             if (Analysis && typeof Analysis.create === "function" && req.session && req.session.user) {
@@ -73,14 +84,16 @@ router.get("/result", async (req, res) => {
             console.warn("History integration hook skipped (DB model or user session inactive):", dbErr.message);
         }
 
-        // 9. Render the results page with computed metrics
+        // 10. Render the results page with computed metrics
         return res.render("result", {
             repoName: repoData.name,
             repoOwner: repoData.owner,
             repoAvatar: repoData.avatarUrl,
             overallScore: overallScore,
             parameters: allParameters,
-            selectedParams: selectedParams
+            selectedParams: selectedParams,
+            scrapeData,
+            agentReview
         });
 
     } catch (error) {
