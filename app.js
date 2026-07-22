@@ -1,9 +1,11 @@
 const express = require("express");
 const path = require("path");
+const session = require("express-session");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const sessionSecret = process.env.SESSION_SECRET;
 
 // Set EJS view engine
 app.set("view engine", "ejs");
@@ -15,6 +17,21 @@ app.use(express.static(path.join(__dirname, "public")));
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Sessions
+if (!sessionSecret) {
+    console.warn("SESSION_SECRET is not configured. Set it in .env before using authentication.");
+}
+
+app.use(session({
+    secret: sessionSecret || "missing-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
 
 // Connect to database if implemented
 try {
