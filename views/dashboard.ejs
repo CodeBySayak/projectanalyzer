@@ -15,17 +15,29 @@
   <%- include('partials/navbar', { activePage }) %>
 
   <main>
-    <div class="dashboard-container">
+    <div class="dashboard-container command-center reveal-on-scroll">
+      <div class="dashboard-hud-row" aria-hidden="true">
+        <span>System // Online</span>
+        <span>Scraper // Ready</span>
+        <span>AI Core // Ready</span>
+        <span>Database // Linked</span>
+      </div>
+      <div class="mascot-card dashboard-mascot" aria-hidden="true">
+        <div class="mascot-avatar"></div>
+        <div class="speech-bubble">Drop the repo link. I'll inspect the codebase.</div>
+      </div>
       <div class="dashboard-header">
-        <h1>Evaluate GitHub Repository</h1>
-        <p>Enter a public repository URL and select parameters to generate an in-depth score report.</p>
+        <span class="eyebrow">Otaku Cyber Intelligence Terminal</span>
+        <h1>Project Analyzer</h1>
+        <p>Repository intelligence system for GitHub codebases, scoring signals, and AI-assisted review.</p>
       </div>
 
-      <form id="analyzer-form" novalidate action="/result" method="GET">
+      <form id="analyzer-form" class="scanner-form" novalidate action="/result" method="GET">
         <!-- URL Input -->
         <div class="form-group">
           <label class="form-label" for="repo-url">Repository URL</label>
           <div class="url-input-container">
+            <span class="terminal-prefix">&gt;</span>
             <input type="url" id="repo-url" name="url" class="input-control" placeholder="https://github.com/facebook/react" required>
           </div>
           <span class="input-error-msg" id="url-error" style="text-align: left; display: block; margin-top: -1.5rem; margin-bottom: 1.5rem; display: none;">
@@ -108,6 +120,9 @@
 
     <!-- Frontend-only Loading Spinner Overlay -->
     <div class="loader-overlay" id="loading-overlay">
+      <div class="loader-mascot" aria-hidden="true">
+        <div class="mascot-avatar"></div>
+      </div>
       <div class="spinner-container">
         <div class="spinner-ring"></div>
         <svg class="spinner-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -115,7 +130,7 @@
         </svg>
       </div>
       <div class="loader-message-holder" id="loader-status">Connecting to GitHub...</div>
-      <div class="loader-sub-msg">Analyzing code quality and metrics</div>
+      <div class="loader-sub-msg">Kodo-chan is syncing repository signals</div>
     </div>
   </main>
 

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initResultPage();
   initHistoryPage();
   initErrorPage();
+  initRevealAnimations();
 });
 
 /* ==========================================
@@ -256,11 +257,12 @@ function overlaySubmit(overlay, statusText, form) {
 
   const messages = [
     { text: "Connecting to GitHub...", time: 0 },
-    { text: "Fetching repository metadata...", time: 500 },
-    { text: "Evaluating directory tree & codebase...", time: 1000 },
-    { text: "Calculating metrics for parameters...", time: 1500 },
-    { text: "Compiling repository score card...", time: 2000 },
-    { text: "Finalizing evaluation report...", time: 2400 }
+    { text: "Fetching repository data...", time: 450 },
+    { text: "Scraping documentation signals...", time: 900 },
+    { text: "Analyzing folder structure...", time: 1350 },
+    { text: "Calculating repository scores...", time: 1800 },
+    { text: "AI agent reviewing project...", time: 2200 },
+    { text: "Generating intelligence report...", time: 2500 }
   ];
 
   messages.forEach(msg => {
@@ -271,84 +273,13 @@ function overlaySubmit(overlay, statusText, form) {
 
   setTimeout(() => {
     form.submit();
-  }, 2500);
+  }, 2750);
 }
 
 // Function to animate status updates in loading overlay
 function triggerLoader(overlay, statusText, repoUrl, checkedParams) {
-  overlay.classList.add('active');
-
-  const messages = [
-    { text: "Connecting to GitHub...", time: 0 },
-    { text: "Fetching repository metadata...", time: 500 },
-    { text: "Evaluating directory tree & codebase...", time: 1000 },
-    { text: "Calculating metrics for parameters...", time: 1500 },
-    { text: "Compiling repository score card...", time: 2000 },
-    { text: "Finalizing evaluation report...", time: 2400 }
-  ];
-
-  messages.forEach(msg => {
-    setTimeout(() => {
-      statusText.textContent = msg.text;
-    }, msg.time);
-  });
-
-  // After 2.5s, generate and save analysis details, then redirect to Result Page
-  setTimeout(() => {
-    // Check for standard errors to test the error page
-    const lowerUrl = repoUrl.toLowerCase();
-    if (lowerUrl.includes('error-notfound') || lowerUrl.includes('404')) {
-      window.location.href = '/error?type=not_found';
-      return;
-    } else if (lowerUrl.includes('error-ratelimit')) {
-      window.location.href = '/error?type=rate_limit';
-      return;
-    } else if (lowerUrl.includes('error-network')) {
-      window.location.href = '/error?type=network_error';
-      return;
-    }
-
-    // Parse repository details
-    const parsed = parseGitHubUrl(repoUrl);
-    const repoOwner = parsed ? parsed.owner : "facebook";
-    const repoName = parsed ? parsed.repo : "react";
-
-    // Generate score based on repository name length to make it semi-consistent
-    const seed = (repoOwner + repoName).length;
-    const baseScore = 5.0 + (seed % 50) / 10; // score between 5.0 and 10.0
-    const finalScore = Math.min(10.0, Math.round(baseScore * 10) / 10);
-
-    const generatedParams = checkedParams.map(paramName => {
-      const pSeed = paramName.length + seed;
-      const pScore = 4.0 + (pSeed % 60) / 10; // score between 4.0 and 10.0
-      return {
-        name: paramName,
-        score: Math.min(10.0, Math.round(pScore * 10) / 10)
-      };
-    });
-
-    const resultObject = {
-      id: Date.now().toString(),
-      repoName: repoName,
-      repoOwner: repoOwner,
-      repoUrl: repoUrl,
-      repoAvatar: `https://avatars.githubusercontent.com/u/${(seed * 12345) % 100000}?v=4`,
-      overallScore: finalScore,
-      parameters: generatedParams,
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-    };
-
-    // Save as latest result
-    localStorage.setItem('pa_latest_result', JSON.stringify(resultObject));
-
-    // Save to history list
-    const history = JSON.parse(localStorage.getItem('pa_history') || '[]');
-    history.unshift(resultObject); // add to top
-    localStorage.setItem('pa_history', JSON.stringify(history));
-
-    // Redirect to Result view
-    window.location.href = `/result?url=${encodeURIComponent(repoUrl)}`;
-  }, 2500);
+  if (!overlay || !statusText) return;
+  statusText.textContent = "Generating intelligence report...";
 }
 
 /* ==========================================
@@ -356,32 +287,6 @@ function triggerLoader(overlay, statusText, repoUrl, checkedParams) {
    ========================================== */
 function initResultPage() {
   if (!window.location.pathname.includes('/result')) return;
-
-  let resultData = null;
-
-  // First, check if there is an id or url in the query parameters
-  const params = new URLSearchParams(window.location.search);
-  const repoUrlParam = params.get('url');
-  const repoIdParam = params.get('id');
-
-  // Try to load from history if ID matches, or load latest result from localStorage
-  if (repoIdParam) {
-    const history = JSON.parse(localStorage.getItem('pa_history') || '[]');
-    resultData = history.find(item => item.id === repoIdParam);
-  }
-
-  if (!resultData && repoUrlParam) {
-    // If we have a URL parameter, check if it matches our latest result
-    const latest = JSON.parse(localStorage.getItem('pa_latest_result'));
-    if (latest && latest.repoUrl === repoUrlParam) {
-      resultData = latest;
-    }
-  }
-
-  // Overwrite DOM elements if resultData was found (Client-Side Rendering Fallback)
-  if (resultData) {
-    updateResultDOM(resultData);
-  }
 
   // SVG Circular progress ring animation
   const ring = document.getElementById('result-circular-ring');
@@ -404,6 +309,8 @@ function initResultPage() {
       bar.style.width = targetWidth;
     }, 250);
   });
+
+  animateScoreNumbers();
 }
 
 function updateResultDOM(data) {
@@ -517,6 +424,60 @@ function initHistoryPage() {
   }
 
   countBadge.style.display = 'none';
+}
+
+function animateScoreNumbers() {
+  const scoreNodes = document.querySelectorAll('.score-val, .score-card-val, .history-score-number');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  scoreNodes.forEach(node => {
+    const raw = node.textContent.trim();
+    const match = raw.match(/^\d+(\.\d+)?/);
+    if (!match) return;
+
+    const target = parseFloat(match[0]);
+    if (Number.isNaN(target) || reduceMotion) return;
+
+    const suffix = raw.slice(match[0].length);
+    const duration = 900;
+    const start = performance.now();
+
+    function tick(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      node.textContent = `${(target * eased).toFixed(1)}${suffix}`;
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        node.textContent = raw;
+      }
+    }
+
+    requestAnimationFrame(tick);
+  });
+}
+
+function initRevealAnimations() {
+  const revealItems = document.querySelectorAll('.reveal-on-scroll, .card, .score-card, .history-card');
+
+  if (!revealItems.length) return;
+
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    revealItems.forEach(item => item.classList.add('is-visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  revealItems.forEach(item => observer.observe(item));
 }
 
 /* ==========================================

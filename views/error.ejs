@@ -37,7 +37,8 @@
   <%- include('partials/navbar', { activePage }) %>
 
   <main>
-    <div class="error-wrapper">
+    <div class="error-wrapper reveal-on-scroll">
+      <span class="eyebrow">System Error</span>
       <div class="error-svg-container" id="error-illustration-holder">
         <!-- We will render the matching SVG based on the errorType -->
         <% if (errorType === "invalid_url") { %>
@@ -74,7 +75,7 @@
         <% } %>
       </div>
 
-      <h1 id="error-title-text"><%= errorTitle %></h1>
+      <h1 id="error-title-text">Mission Failed: <%= errorTitle %></h1>
       <p id="error-description-text"><%= errorMessage %></p>
 
       <a href="/dashboard" class="btn btn-primary" id="error-back-btn">
