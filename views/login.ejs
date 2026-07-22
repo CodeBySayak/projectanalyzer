@@ -1,0 +1,54 @@
+<% const activePage = 'login'; %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ProjectAnalyzer</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <%- include('partials/navbar', { activePage }) %>
+
+  <main>
+    <div class="auth-wrapper">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Login to analyze your repositories</p>
+      </div>
+
+      <div class="card">
+        <form id="login-form" novalidate action="/login" method="POST">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" name="email" class="input-control" placeholder="name@example.com" required>
+            <span class="input-error-msg" id="email-error">Please enter a valid email address.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" class="input-control" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required>
+            <span class="input-error-msg" id="password-error">Password must be at least 6 characters.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="login-btn">
+            Sign In
+          </button>
+        </form>
+      </div>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="/signup" id="link-to-signup">Sign up here</a></p>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

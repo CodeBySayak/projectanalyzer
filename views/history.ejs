@@ -1,0 +1,87 @@
+<%
+  const activePage = 'history';
+  const historyItems = locals.history || [];
+  
+  // Helper to determine the score state class
+  function getScoreClass(score) {
+    if (score >= 8.0) return 'high';
+    if (score >= 5.0) return 'medium';
+    return 'low';
+  }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analysis History - ProjectAnalyzer</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <%- include('partials/navbar', { activePage }) %>
+
+  <main>
+    <div class="history-title-area">
+      <h1>Analysis History</h1>
+      <span class="history-count" id="history-count-badge" style="display: none;">0 Analyses</span>
+    </div>
+
+    <!-- History items container -->
+    <div class="history-list" id="history-container">
+      <% if (historyItems.length > 0) { %>
+        <% historyItems.forEach((item, index) => { %>
+          <div class="history-card">
+            <div class="history-card-left">
+              <div class="history-icon-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <div class="history-card-details">
+                <h2><%= item.repoName %></h2>
+                <div class="history-date"><%= item.date %></div>
+              </div>
+            </div>
+            <div class="history-card-right">
+              <div class="history-score-display">
+                <div class="history-score-number state-<%= getScoreClass(item.score) %>"><%= item.score.toFixed(1) %></div>
+                <div class="history-score-lbl">Score</div>
+              </div>
+              <!-- In a standard Express setup, clicking Details redirects to /result with relevant URL/data -->
+              <a href="/result?url=<%= encodeURIComponent(item.repoUrl) %>&id=<%= item.id %>" class="btn btn-secondary btn-sm">
+                View Details
+              </a>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Dynamic/Static Empty State Wrapper -->
+    <!-- Displayed if historyItems.length is 0. If local JS finds items in localStorage, it will hide this container -->
+    <div class="card empty-history-card" id="history-empty-state" style="<%= historyItems.length > 0 ? 'display: none;' : '' %>">
+      <div class="empty-svg-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="3"></circle>
+          <line x1="12" y1="8" x2="12" y2="10"></line>
+          <line x1="12" y1="16" x2="12" y2="16"></line>
+        </svg>
+      </div>
+      <h2>No Analysis History Yet</h2>
+      <p>Evaluate your first public GitHub repository on the dashboard to view scores, ratings, and breakdowns here.</p>
+      <a href="/dashboard" class="btn btn-primary">
+        Go to Dashboard
+      </a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

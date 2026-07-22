@@ -1,0 +1,166 @@
+<%
+  const activePage = 'dashboard';
+  
+  // Robust EJS fallback variables if the backend does not provide them
+  const repoName = locals.repoName || "react";
+  const repoOwner = locals.repoOwner || "facebook";
+  const repoAvatar = locals.repoAvatar || "https://avatars.githubusercontent.com/u/69631?v=4";
+  const overallScore = locals.overallScore !== undefined ? locals.overallScore : 8.7;
+  
+  // Default parameters list with mock scores
+  const allParameters = locals.parameters || [
+    { name: "Documentation", score: 9.0 },
+    { name: "Commits per Contributor", score: 8.2 },
+    { name: "Total Contributors", score: 9.5 },
+    { name: "Stars", score: 10.0 },
+    { name: "Forks", score: 9.0 },
+    { name: "Pull Requests", score: 7.8 },
+    { name: "Folder Structure", score: 7.5 },
+    { name: "README Quality", score: 9.2 },
+    { name: "Responsiveness", score: 4.8 },
+    { name: "Code Organization", score: 8.0 }
+  ];
+  
+  // In the real system, the user selects a combination. We will filter/display those.
+  // We can let the backend pass an array of selected parameter names (locals.selectedParams).
+  // If it's not provided, we show all parameters.
+  const selectedParams = locals.selectedParams || allParameters.map(p => p.name);
+  const activeParameters = allParameters.filter(p => selectedParams.includes(p.name));
+  
+  // Helper to determine the score state class
+  function getScoreClass(score) {
+    if (score >= 8.0) return 'high';
+    if (score >= 5.0) return 'medium';
+    return 'low';
+  }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluation Results - ProjectAnalyzer</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <%- include('partials/navbar', { activePage }) %>
+
+  <main>
+    <!-- Repository Header -->
+    <div class="result-header">
+      <div class="repo-meta">
+        <img src="<%= repoAvatar %>" alt="<%= repoOwner %> logo" class="repo-avatar" id="result-repo-avatar">
+        <div class="repo-info">
+          <h1 id="result-repo-name"><%= repoName %></h1>
+          <p id="result-repo-owner-line">
+            by <a href="https://github.com/<%= repoOwner %>" target="_blank" rel="noopener noreferrer" id="result-repo-owner"><%= repoOwner %></a>
+            <span class="badge" style="margin-left: 0.5rem;" id="result-repo-platform">GitHub</span>
+          </p>
+        </div>
+      </div>
+      <div>
+        <a href="/dashboard" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Summary Metrics Card -->
+    <div class="card metrics-summary-card">
+      <!-- Large Circular Progress Indicator -->
+      <div class="circular-progress-wrapper">
+        <div class="circular-progress">
+          <svg>
+            <circle class="track" cx="90" cy="90" r="80"></circle>
+            <!-- Progress offset animates from 502 (0%) to 502 - (502 * score / 10) -->
+            <circle class="progress circle-<%= getScoreClass(overallScore) %>" cx="90" cy="90" r="80" id="result-circular-ring" data-score="<%= overallScore %>"></circle>
+          </svg>
+          <div class="circular-progress-text">
+            <div class="score-val state-<%= getScoreClass(overallScore) %>" id="result-overall-score-text"><%= overallScore.toFixed(1) %></div>
+            <div class="score-max">/ 10</div>
+          </div>
+        </div>
+        <div class="score-label state-<%= getScoreClass(overallScore) %>" id="result-score-rating">
+          <% if (overallScore >= 8.0) { %>Excellent<% } else if (overallScore >= 5.0) { %>Satisfactory<% } else { %>Unsatisfactory<% } %>
+        </div>
+      </div>
+
+      <!-- Quick Analysis Summary Text -->
+      <div style="text-align: left;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">Repository Overview</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.05rem;">
+          This repository has been evaluated against selected parameters using analysis algorithms. 
+          An overall score of <strong class="state-<%= getScoreClass(overallScore) %>" id="result-summary-score"><%= overallScore.toFixed(1) %>/10</strong> indicates a 
+          <% if (overallScore >= 8.0) { %>highly maintainable, well-documented, and active open-source project. Excellent practices are followed.<% } else if (overallScore >= 5.0) { %>moderate level of maintenance and health. Some improvements can be made in testing, documentation, or code organization.<% } else { %>critical need for improvements. The repository suffers from low activity, poor responsiveness, or inadequate structural layout.<% } %>
+        </p>
+        <div style="display: flex; gap: 2.5rem;">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Parameters Run</div>
+            <div style="font-size: 1.5rem; font-weight: 800;" id="result-params-count"><%= activeParameters.length %> / 10</div>
+          </div>
+          <div style="border-left: 1px solid var(--border-color); padding-left: 2.5rem;">
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Health Class</div>
+            <div style="font-size: 1.5rem; font-weight: 800;" id="result-health-class">
+              <% if (overallScore >= 8.0) { %>Grade A<% } else if (overallScore >= 5.0) { %>Grade B<% } else { %>Grade C<% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parameter Specific Score Cards Grid -->
+    <h2 style="font-size: 1.25rem; font-weight: 800; text-align: left; margin-bottom: 1.25rem;">Parameter Evaluation Breakdown</h2>
+    <div class="cards-grid" id="result-cards-container">
+      <% activeParameters.forEach(param => { %>
+        <div class="score-card">
+          <div class="score-card-top">
+            <span class="score-card-title"><%= param.name %></span>
+            <span class="score-card-val state-<%= getScoreClass(param.score) %>"><%= param.score.toFixed(1) %></span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar bg-<%= getScoreClass(param.score) %>" data-width="<%= param.score * 10 %>%"></div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Selected Parameters Section -->
+    <div class="result-params-section">
+      <div class="result-params-title">Selected Analysis Scope</div>
+      <div class="result-params-list" id="result-pills-container">
+        <% activeParameters.forEach(param => { %>
+          <span class="result-param-pill"><%= param.name %></span>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- Final Overall Score & CTA -->
+    <div class="card" style="margin-bottom: 3rem; text-align: center; background-color: var(--bg-primary); border-style: dashed;">
+      <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Final Evaluation Score: <span class="state-<%= getScoreClass(overallScore) %>" id="result-bottom-score"><%= overallScore.toFixed(1) %> / 10.0</span></h2>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">This report was compiled and cached locally. You can access it anytime in your dashboard history.</p>
+      
+      <div class="action-footer">
+        <a href="/dashboard" class="btn btn-primary" id="analyze-another-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Analyze Another Repository
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
