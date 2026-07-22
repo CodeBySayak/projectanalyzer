@@ -52,7 +52,7 @@
 
   <main>
     <!-- Repository Header -->
-    <div class="result-header">
+    <div class="result-header reveal-on-scroll">
       <div class="repo-meta">
         <img src="<%= repoAvatar %>" alt="<%= repoOwner %> logo" class="repo-avatar" id="result-repo-avatar">
         <div class="repo-info">
@@ -75,7 +75,7 @@
     </div>
 
     <!-- Summary Metrics Card -->
-    <div class="card metrics-summary-card">
+    <div class="card metrics-summary-card reveal-on-scroll">
       <!-- Large Circular Progress Indicator -->
       <div class="circular-progress-wrapper">
         <div class="circular-progress">
@@ -121,7 +121,7 @@
     <h2 style="font-size: 1.25rem; font-weight: 800; text-align: left; margin-bottom: 1.25rem;">Parameter Evaluation Breakdown</h2>
     <div class="cards-grid" id="result-cards-container">
       <% activeParameters.forEach(param => { %>
-        <div class="score-card">
+        <div class="score-card reveal-on-scroll">
           <div class="score-card-top">
             <span class="score-card-title"><%= param.name %></span>
             <span class="score-card-val state-<%= getScoreClass(param.score) %>"><%= param.score.toFixed(1) %></span>
@@ -134,7 +134,7 @@
     </div>
 
     <!-- Selected Parameters Section -->
-    <div class="result-params-section">
+    <div class="result-params-section reveal-on-scroll">
       <div class="result-params-title">Selected Analysis Scope</div>
       <div class="result-params-list" id="result-pills-container">
         <% activeParameters.forEach(param => { %>
@@ -144,7 +144,11 @@
     </div>
 
     <% if (agentReview) { %>
-      <div class="card" style="margin-bottom: 2rem; text-align: left;">
+      <div class="card ai-terminal reveal-on-scroll" style="margin-bottom: 2rem; text-align: left;">
+        <div class="ai-terminal-header">
+          <span>AI CORE // REPOSITORY REVIEW</span>
+          <span class="typing-cursor">ACTIVE</span>
+        </div>
         <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Agentic AI Repository Review</h2>
         <p style="color: var(--text-secondary); margin-bottom: 1rem;"><%= agentReview.summary %></p>
 
@@ -170,7 +174,7 @@
         <div class="result-params-title">Prioritized Improvements</div>
         <div style="display: grid; gap: 0.85rem;">
           <% (agentReview.recommendations || []).forEach(item => { %>
-            <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+            <div class="ai-recommendation" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
               <div style="font-weight: 800; margin-bottom: 0.35rem;"><%= item.priority || "Medium" %> Priority: <%= item.issue %></div>
               <div style="color: var(--text-secondary);"><%= item.recommendation %></div>
             </div>
@@ -182,9 +186,9 @@
     <% } %>
 
     <!-- Final Overall Score & CTA -->
-    <div class="card" style="margin-bottom: 3rem; text-align: center; background-color: var(--bg-primary); border-style: dashed;">
+    <div class="card reveal-on-scroll" style="margin-bottom: 3rem; text-align: center; background-color: var(--bg-primary); border-style: dashed;">
       <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Final Evaluation Score: <span class="state-<%= getScoreClass(overallScore) %>" id="result-bottom-score"><%= overallScore.toFixed(1) %> / 10.0</span></h2>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">This report was compiled and cached locally. You can access it anytime in your dashboard history.</p>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">This report was compiled from live repository analysis. You can access saved reports from your history archive.</p>
       
       <div class="action-footer">
         <a href="/dashboard" class="btn btn-primary" id="analyze-another-btn">

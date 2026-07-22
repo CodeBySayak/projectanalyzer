@@ -3,6 +3,11 @@
   const isAuthPage = locals.activePage === 'login' || locals.activePage === 'signup';
   const showNav = !isAuthPage;
 %>
+<div class="ambient-hud" aria-hidden="true">
+  <div class="hud-widget hud-widget-left"><span>SYSTEM</span><strong>ONLINE</strong></div>
+  <div class="hud-widget hud-widget-right"><span>AI CORE</span><strong>READY</strong></div>
+</div>
+
 <nav class="navbar">
   <div class="navbar-container">
     <a href="<%= showNav ? '/dashboard' : '#' %>" class="navbar-brand">
@@ -10,6 +15,7 @@
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
       </svg>
       <span>ProjectAnalyzer</span>
+      <small>Repository Intelligence System</small>
     </a>
 
     <% if (showNav) { %>
@@ -24,6 +30,7 @@
       <div class="navbar-menu" id="navbar-menu-list">
         <a href="/dashboard" class="navbar-link <%= locals.activePage === 'dashboard' ? 'active' : '' %>" id="nav-link-dashboard">Dashboard</a>
         <a href="/history" class="navbar-link <%= locals.activePage === 'history' ? 'active' : '' %>" id="nav-link-history">History</a>
+        <span class="system-pill">System Online</span>
         <button class="navbar-logout" id="navbar-logout-btn">Logout</button>
       </div>
     <% } %>

@@ -14,14 +14,19 @@
 
   <%- include('partials/navbar', { activePage }) %>
 
-  <main>
-    <div class="auth-wrapper">
+  <main class="auth-main">
+    <div class="auth-wrapper reveal-on-scroll">
+      <div class="mascot-card auth-mascot" aria-hidden="true">
+        <div class="mascot-avatar"></div>
+        <div class="speech-bubble">Welcome back, operator.</div>
+      </div>
       <div class="auth-header">
-        <h1>Welcome Back</h1>
-        <p>Login to analyze your repositories</p>
+        <span class="eyebrow">ProjectAnalyzer Access Gate</span>
+        <h1>Identity Verification</h1>
+        <p>Login to enter the repository intelligence terminal.</p>
       </div>
 
-      <div class="card">
+      <div class="card auth-card">
         <form id="login-form" novalidate action="/login" method="POST">
           <div class="form-group">
             <label class="form-label" for="login-email">Email Address</label>

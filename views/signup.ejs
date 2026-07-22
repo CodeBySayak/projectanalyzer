@@ -14,14 +14,19 @@
 
   <%- include('partials/navbar', { activePage }) %>
 
-  <main>
-    <div class="auth-wrapper">
+  <main class="auth-main">
+    <div class="auth-wrapper reveal-on-scroll">
+      <div class="mascot-card auth-mascot" aria-hidden="true">
+        <div class="mascot-avatar"></div>
+        <div class="speech-bubble">New developer detected.</div>
+      </div>
       <div class="auth-header">
-        <h1>Create Account</h1>
-        <p>Get started with repository evaluations</p>
+        <span class="eyebrow">Operator Registry</span>
+        <h1>Create Operator Profile</h1>
+        <p>Prepare your account for repo scans and score archives.</p>
       </div>
 
-      <div class="card">
+      <div class="card auth-card">
         <form id="signup-form" novalidate action="/signup" method="POST">
           <div class="form-group">
             <label class="form-label" for="signup-name">Full Name</label>

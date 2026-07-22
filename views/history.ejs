@@ -25,8 +25,11 @@
   <%- include('partials/navbar', { activePage }) %>
 
   <main>
-    <div class="history-title-area">
-      <h1>Analysis History</h1>
+    <div class="history-title-area reveal-on-scroll">
+      <div>
+        <span class="eyebrow">Analysis Archive</span>
+        <h1>Mission Archive</h1>
+      </div>
       <span class="history-count" id="history-count-badge" style="display: none;">0 Analyses</span>
     </div>
 
@@ -34,7 +37,7 @@
     <div class="history-list" id="history-container">
       <% if (historyItems.length > 0) { %>
         <% historyItems.forEach((item, index) => { %>
-          <div class="history-card">
+          <div class="history-card reveal-on-scroll">
             <div class="history-card-left">
               <div class="history-icon-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,7 +76,7 @@
         </svg>
       </div>
       <h2>No Analysis History Yet</h2>
-      <p>Evaluate your first public GitHub repository on the dashboard to view scores, ratings, and breakdowns here.</p>
+      <p>Kodo-chan has no mission records. Evaluate your first public GitHub repository to build the archive.</p>
       <a href="/dashboard" class="btn btn-primary">
         Go to Dashboard
       </a>
